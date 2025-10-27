@@ -41,6 +41,17 @@ Remaining Time: 02:59:45   (hh:mm:ss)
 Cancel: CTRL+C  or from another window: shutdown /a
 ```
 
+## 🧪 Testing
+
+The script targets Windows' Command Prompt. To verify it manually:
+
+1. Open `cmd.exe` on a Windows machine.
+2. Run `sleep.bat` (double-clicking works too).
+3. Provide a small value such as `1` to confirm the countdown and the system `shutdown /t` timer are set.
+4. Cancel the timer with `CTRL+C` or by opening another Command Prompt window and entering `shutdown /a`.
+
+Automated testing is not available for Batch files in this repository, and the script cannot be executed on non-Windows environments such as this Linux container.
+
 ## 🔍 Check or cancel the timer
 
 You can check or cancel the active shutdown timer anytime in another Command Prompt window:

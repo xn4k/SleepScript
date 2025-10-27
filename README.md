@@ -16,10 +16,12 @@ options pretty well, so this script does the job instead.
 - 🧮 Live console countdown (hh:mm:ss)
 - 🧠 Uses Windows' built-in `shutdown /t` timer (globally visible)
 - 🔁 Real-time updates every second
-- 🧰 Cancel anytime with **CTRL + C** or from another window:
+- 🧰 Cancel anytime with **CTRL + C** or from another window — pressing CTRL+C now auto-runs `shutdown /a` for you:
   ```cmd
   shutdown /a
   ```
+
+> ℹ️ The CTRL+C auto-cancel helper relies on Windows PowerShell. If PowerShell is unavailable, the script will warn you and CTRL+C falls back to the previous manual behavior.
 
 ## 💻 Usage
 
@@ -48,7 +50,7 @@ The script targets Windows' Command Prompt. To verify it manually:
 1. Open `cmd.exe` on a Windows machine.
 2. Run `sleep.bat` (double-clicking works too).
 3. Provide a small value such as `1` to confirm the countdown and the system `shutdown /t` timer are set.
-4. Cancel the timer with `CTRL+C` or by opening another Command Prompt window and entering `shutdown /a`.
+4. Press `CTRL+C` to verify the script automatically issues `shutdown /a` (you can still cancel from another window with `shutdown /a`).
 
 Automated testing is not available for Batch files in this repository, and the script cannot be executed on non-Windows environments such as this Linux container.
 

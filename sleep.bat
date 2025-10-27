@@ -19,6 +19,8 @@ echo Cancel anytime with CTRL+C or from another
 echo Command Prompt window by running: shutdown /a
 echo.
 
+call :setupCtrlCHandler
+
 :ask
 set /p hours=How many hours from now should the PC shut down? (e.g. 1, 2, 5): 
 if "!hours!"=="" (
@@ -124,4 +126,48 @@ if !remaining! GTR 0 goto countdown
 echo.
 echo (If the shutdown was canceled, the countdown above was only visual.)
 color 07
+call :teardownCtrlCHandler
 pause
+goto :eof
+
+:setupCtrlCHandler
+REM Install a background PowerShell helper that will run "shutdown /a" when CTRL+C is pressed.
+set "CTRLCHelperActive="
+where powershell.exe >nul 2>&1 || (
+    echo Warning: PowerShell not found. CTRL+C will not automatically cancel the system shutdown timer.
+    goto :eof
+)
+
+set "ctrlcScript=%temp%\sleep-ctrlc-!random!!random!.ps1"
+set "ctrlcSentinel=%temp%\sleep-ctrlc-sentinel-!random!!random!.tmp"
+type nul >"!ctrlcSentinel!"
+
+>"!ctrlcScript!" (
+    echo param([string]$SentinelPath)
+    echo $ErrorActionPreference = 'SilentlyContinue'
+    echo $handler = [System.ConsoleCancelEventHandler]{
+    echo     param($sender, $eventArgs)
+    echo     try { Start-Process -FilePath "shutdown" -ArgumentList "/a" -WindowStyle Hidden ^| Out-Null } catch { }
+    echo     try { Remove-Item -LiteralPath $SentinelPath -ErrorAction SilentlyContinue } catch { }
+    echo }
+    echo try {
+    echo     [Console]::CancelKeyPress += $handler
+    echo     while (Test-Path -LiteralPath $SentinelPath) {
+    echo         Start-Sleep -Milliseconds 200
+    echo     }
+    echo }
+    echo finally {
+    echo     [Console]::CancelKeyPress -= $handler
+    echo }
+)
+
+start "" /B powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File "!ctrlcScript!" "!ctrlcSentinel!"
+set "CTRLCHelperActive=1"
+goto :eof
+
+:teardownCtrlCHandler
+if not defined CTRLCHelperActive goto :eof
+if defined ctrlcSentinel if exist "!ctrlcSentinel!" del "!ctrlcSentinel!" >nul 2>&1
+if defined ctrlcScript if exist "!ctrlcScript!" del "!ctrlcScript!" >nul 2>&1
+set "CTRLCHelperActive="
+goto :eof

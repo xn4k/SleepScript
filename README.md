@@ -16,7 +16,7 @@ options pretty well, so this script does the job instead.
 - 🧮 Live console countdown (hh:mm:ss)
 - 🧠 Uses Windows' built-in `shutdown /t` timer (globally visible)
 - 🔁 Real-time updates every second
-- 🧰 Cancel anytime with **CTRL + C** or from another window — pressing CTRL+C now auto-runs `shutdown /a` for you:
+- 🧰 Cancel anytime From another window;
   ```cmd
   shutdown /a
   ```

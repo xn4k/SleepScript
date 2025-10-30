@@ -142,24 +142,23 @@ set "ctrlcScript=%temp%\sleep-ctrlc-!random!!random!.ps1"
 set "ctrlcSentinel=%temp%\sleep-ctrlc-sentinel-!random!!random!.tmp"
 type nul >"!ctrlcSentinel!"
 
->"!ctrlcScript!" (
-    echo param([string]$SentinelPath)
-    echo $ErrorActionPreference = 'SilentlyContinue'
-    echo $handler = [System.ConsoleCancelEventHandler]{
-    echo     param($sender, $eventArgs)
-    echo     try { Start-Process -FilePath "shutdown" -ArgumentList "/a" -WindowStyle Hidden ^| Out-Null } catch { }
-    echo     try { Remove-Item -LiteralPath $SentinelPath -ErrorAction SilentlyContinue } catch { }
-    echo }
-    echo try {
-    echo     [Console]::CancelKeyPress += $handler
-    echo     while (Test-Path -LiteralPath $SentinelPath) {
-    echo         Start-Sleep -Milliseconds 200
-    echo     }
-    echo }
-    echo finally {
-    echo     [Console]::CancelKeyPress -= $handler
-    echo }
-)
+REM --- statt des ganzen ( ... ) Blocks: ---
+> "!ctrlcScript!" echo param([string]$SentinelPath)
+>>"!ctrlcScript!" echo $ErrorActionPreference = 'SilentlyContinue'
+>>"!ctrlcScript!" echo $handler = [System.ConsoleCancelEventHandler]^{
+>>"!ctrlcScript!" echo     param($sender, $eventArgs)
+>>"!ctrlcScript!" echo     try ^{ Start-Process -FilePath "shutdown" -ArgumentList "/a" -WindowStyle Hidden ^| Out-Null ^} catch ^{ ^}
+>>"!ctrlcScript!" echo     try ^{ Remove-Item -LiteralPath $SentinelPath -ErrorAction SilentlyContinue ^} catch ^{ ^}
+>>"!ctrlcScript!" echo ^}
+>>"!ctrlcScript!" echo try ^{
+>>"!ctrlcScript!" echo     [Console]::CancelKeyPress += $handler
+>>"!ctrlcScript!" echo     while ^(Test-Path -LiteralPath $SentinelPath^) ^{
+>>"!ctrlcScript!" echo         Start-Sleep -Milliseconds 200
+>>"!ctrlcScript!" echo     ^}
+>>"!ctrlcScript!" echo ^}
+>>"!ctrlcScript!" echo finally ^{
+>>"!ctrlcScript!" echo     [Console]::CancelKeyPress -= $handler
+>>"!ctrlcScript!" echo ^}
 
 start "" /B powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File "!ctrlcScript!" "!ctrlcSentinel!"
 set "CTRLCHelperActive=1"
